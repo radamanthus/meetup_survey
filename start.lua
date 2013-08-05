@@ -35,27 +35,24 @@ end
 local renderTextBoxQuestion = function( question )
 end
 
-local renderRadioBoxQuestion = function( question )
-end
-
-local renderCheckBoxQuestion = function( question )
+local renderChoices = function( question, choiceType )
   local left = 10
   local top = txtQuestion.y + 20
 
-  for i,v in ipairs(question.choices) do
+  for i,choiceStr in ipairs( question.choices ) do
     local w = widget.newSwitch
     {
       left = 10,
       top = top,
-      id = "checkbox_" .. v,
-      style = "checkbox",
+      id = choiceType .. choiceStr,
+      style = choiceType,
       initialSwitchState = false
     }
-    w.label = v
+    w.label = choiceStr
     screen:insert( w )
     table.insert( choiceWidgets, w )
 
-    local choiceText = display.newText( v, 0, 0, 200, 20, native.systemFont, 16 )
+    local choiceText = display.newText( choiceStr, 0, 0, 200, 20, native.systemFont, 16 )
     choiceText.x = left + 40 + choiceText.width/2
     choiceText.y = top + 7 + choiceText.height/2
     screen:insert( choiceText )
@@ -63,6 +60,14 @@ local renderCheckBoxQuestion = function( question )
 
     top = top + 40
   end
+end
+
+local renderRadioBoxQuestion = function( question )
+  renderChoices( question, "radio" )
+end
+
+local renderCheckBoxQuestion = function( question )
+  renderChoices( question, "checkbox" )
 end
 
 local renderSelectQuestion = function( question )
