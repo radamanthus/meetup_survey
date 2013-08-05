@@ -45,7 +45,7 @@ _G.questions = {
 
   {
     text = "Please rate the content of the meetup talk(s)",
-    questionType = "radiobox",
+    questionType = "radio",
     choices = {
       "Good",
       "OK",
@@ -55,7 +55,7 @@ _G.questions = {
 
   {
     text = "Please rate the duration of the meetup talk(s)",
-    questionType = "radiobox",
+    questionType = "radio",
     choices = {
       "Just right",
       "Too short",
