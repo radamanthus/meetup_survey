@@ -71,6 +71,6 @@ _G.questions = {
 
   {
     text = "Care to share us your email address?",
-    questionType = "textbox"
+    questionType = "textfield"
   }
 }

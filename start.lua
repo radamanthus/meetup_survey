@@ -32,7 +32,28 @@ local getCurrentQuestion = function()
   return _G.questions[currentQuestionIndex]
 end
 
-local renderTextBoxQuestion = function( question )
+local renderTextWidget = function( question, fieldType )
+  local left = 10
+  local top = txtQuestion.y
+  local width = 300
+  local height = 20
+
+  if fieldType == "textbox" then
+    questionWidget = native.newTextBox(
+      left, top,
+      width, 100
+    )
+  else
+    questionWidget = native.newTextField(
+      left, top,
+      width, 20
+    )
+  end
+  questionWidget.isEditable = true
+end
+
+local renderTextFieldQuestion = function( question )
+  renderTextWidget( question, "textfield" )
 end
 
 local renderChoices = function( question, choiceType )
@@ -77,9 +98,9 @@ local renderSelectQuestion = function( question )
       font = native.systemFont,
       columns = {
         {
-          align = "right",
+          align = "left",
           width = 300,
-          startIndex = 1,
+          startIndex = 2,
           labels = question.choices
         }
       }
@@ -89,6 +110,7 @@ local renderSelectQuestion = function( question )
 end
 
 local renderTextAreaQuestion = function( question )
+  renderTextWidget( question, "textbox" )
 end
 
 local renderQuestionText = function( question )
@@ -101,8 +123,8 @@ end
 local renderQuestion = function( question )
   print("Rendering question #" .. _G.currentQuestionIndex)
   renderQuestionText( question )
-  if question.questionType == "textbox" then
-    renderTextBoxQuestion( question )
+  if question.questionType == "textfield" then
+    renderTextFieldQuestion( question )
   elseif question.questionType == "radiobox" then
     renderRadioBoxQuestion( question )
   elseif question.questionType == "checkbox" then
@@ -128,7 +150,8 @@ local saveAnswer = function()
         table.insert( answer, v )
       end
     end
-    print("Answer had " .. #answer .. " checked items")
+  elseif question.questionType == "textarea" then
+    answer = questionWidget.text
   end
   _G.answers[ _G.currentQuestionIndex ] = answer
 end
