@@ -1,3 +1,4 @@
+local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -8,6 +9,11 @@ local radlib = require "scripts.lib.radlib"
 -- BEGINNING OF VARIABLE DECLARATIONS
 ---------------------------------------------------------------------------------
 local screen = nil
+
+-- Local variables for rendering a question
+local txtQuestion = nil
+local questionWidget = nil
+local choiceWidgets = {}
 
 ---------------------------------------------------------------------------------
 -- END OF VARIABLE DECLARATIONS
@@ -35,13 +41,35 @@ local renderCheckBoxQuestion = function( question )
 end
 
 local renderSelectQuestion = function( question )
+  questionWidget = widget.newPickerWheel(
+    {
+      top = txtQuestion.y + txtQuestion.height/2 + 40,
+      font = native.systemFont,
+      columns = {
+        {
+          align = "right",
+          width = 300,
+          startIndex = 1,
+          labels = question.choices
+        }
+      }
+    }
+  )
 end
 
 local renderTextAreaQuestion = function( question )
 end
 
+local renderQuestionText = function( question )
+  txtQuestion = display.newText( question.text, 0, 0, 300, 100, native.systemFont, 16 )
+  txtQuestion.x = 10 + txtQuestion.width/2
+  txtQuestion.y = 10 + txtQuestion.height/2
+  screen:insert( txtQuestion )
+end
+
 local renderQuestion = function( question )
   print("Rendering question #" .. _G.currentQuestionIndex)
+  renderQuestionText( question )
   if question.questionType == "textbox" then
     renderTextBoxQuestion( question )
   elseif question.questionType == "radiobox" then
@@ -57,7 +85,18 @@ local renderQuestion = function( question )
   end
 end
 
+local saveAnswer = function()
+  local answer = nil
+  local question = getCurrentQuestion()
+  if question.questionType == "select" then
+    answer = questionWidget:getValues()[1].value
+  end
+  print("Answer is " .. answer)
+  _G.answers[ _G.currentQuestionIndex ] = answer
+end
+
 local gotoNextQuestion = function()
+  saveAnswer()
   local questions = _G.questions
   if _G.currentQuestionIndex < #questions then
     _G.currentQuestionIndex = _G.currentQuestionIndex + 1
@@ -66,6 +105,7 @@ local gotoNextQuestion = function()
 end
 
 local gotoPreviousQuestion = function()
+  saveAnswer()
   local questions = _G.questions
   if _G.currentQuestionIndex > 1 then
     _G.currentQuestionIndex = _G.currentQuestionIndex - 1
@@ -109,6 +149,16 @@ local renderNextPreviousButtons = function()
   screen:insert(previousButton)
 end
 
+local cleanupCurrentQuestion = function()
+  print("Cleaning up..")
+  if txtQuestion ~= nil then
+    txtQuestion:removeSelf()
+  end
+  if questionWidget ~= nil then
+    questionWidget:removeSelf()
+  end
+end
+
 ---------------------------------------------------------------------------------
 -- BEGINNING OF YOUR IMPLEMENTATION
 ---------------------------------------------------------------------------------
@@ -122,7 +172,7 @@ function scene:enterScene( event )
 end
 
 function scene:exitScene( event )
-  -- stop timers, sound, etc.
+  cleanupCurrentQuestion()
 end
 
 function scene:destroyScene( event )

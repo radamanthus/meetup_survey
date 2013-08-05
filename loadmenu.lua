@@ -11,6 +11,8 @@ function initializeGame()
   require 'init_questions'
 
   math.randomseed( os.time() )
+
+  _G.answers = {}
 end
 
 function scene:createScene( event )

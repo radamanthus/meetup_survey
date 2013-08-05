@@ -3,10 +3,10 @@ _G.questions = {
     text = "How many years of software development experience do you have?",
     questionType = "select",
     choices = {
-      { text = "less than 1 year" },
-      { text = "1 - 3 years" },
-      { text = "4 - 6 years" },
-      { text = "More than 6 years" }
+      "Less than 1 year",
+      "1 - 3 years",
+      "4 - 6 years",
+      "More than 6 years"
     }
   },
 
@@ -14,10 +14,10 @@ _G.questions = {
     text = "How many years of mobile development experience do you have?",
     questionType = "select",
     choices = {
-      { text = "less than 1 year" },
-      { text = "1 - 3 years" },
-      { text = "4 - 6 years" },
-      { text = "More than 6 years" }
+      "Less than 1 year",
+      "1 - 3 years",
+      "4 - 6 years",
+      "More than 6 years"
     }
   },
 
@@ -25,9 +25,9 @@ _G.questions = {
     text = "Which platform(s) do you develop on?",
     questionType = "checkbox",
     choices = {
-      { text = "OS X" },
-      { text = "Windows" },
-      { text = "Linux" }
+      "OS X",
+      "Windows",
+      "Linux"
     }
   },
 
@@ -35,11 +35,11 @@ _G.questions = {
     text = "Which platform(s) do you develop for?",
     questionType = "checkbox",
     choices = {
-      { text = "iOS" },
-      { text = "Android" },
-      { text = "Blackberry" },
-      { text = "Windows" },
-      { text = "Others" }
+      "iOS",
+      "Android",
+      "Blackberry",
+      "Windows",
+      "Others"
     }
   },
 
@@ -47,9 +47,9 @@ _G.questions = {
     text = "Please rate the content of the meetup talk(s)",
     questionType = "radiobox",
     choices = {
-      { text = "Good" },
-      { text = "OK" },
-      { text = "Bad" }
+      "Good",
+      "OK",
+      "Bad"
     }
   },
 
@@ -57,9 +57,9 @@ _G.questions = {
     text = "Please rate the duration of the meetup talk(s)",
     questionType = "radiobox",
     choices = {
-      { text = "Just right" },
-      { text = "Too short" },
-      { text = "Too long" }
+      "Just right",
+      "Too short",
+      "Too long"
     }
   },
 
