@@ -1,6 +1,7 @@
 local widget = require( "widget" )
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
+local _ = require "scripts.lib.underscore"
 
 local ui = require "scripts.lib.ui"
 local radlib = require "scripts.lib.radlib"
@@ -32,7 +33,7 @@ local getCurrentQuestion = function()
   return _G.questions[currentQuestionIndex]
 end
 
-local renderTextWidget = function( question, fieldType )
+local renderTextWidget = function( question, fieldType, answer )
   local left = 10
   local top = txtQuestion.y
   local width = 300
@@ -49,14 +50,15 @@ local renderTextWidget = function( question, fieldType )
       width, 20
     )
   end
+  questionWidget.text = answer
   questionWidget.isEditable = true
 end
 
-local renderTextFieldQuestion = function( question )
-  renderTextWidget( question, "textfield" )
+local renderTextFieldQuestion = function( question, answer )
+  renderTextWidget( question, "textfield", answer )
 end
 
-local renderChoices = function( question, choiceType )
+local renderRadioQuestion = function( question, answer )
   local left = 10
   local top = txtQuestion.y + 20
 
@@ -65,9 +67,8 @@ local renderChoices = function( question, choiceType )
     {
       left = 10,
       top = top,
-      id = choiceType .. choiceStr,
-      style = choiceType,
-      initialSwitchState = false
+      style = "radio",
+      initialSwitchState = (answer == choiceStr)
     }
     w.label = choiceStr
     screen:insert( w )
@@ -83,15 +84,41 @@ local renderChoices = function( question, choiceType )
   end
 end
 
-local renderRadioBoxQuestion = function( question )
-  renderChoices( question, "radio" )
+local renderCheckBoxQuestion = function( question, selectedAnswers )
+  local left = 10
+  local top = txtQuestion.y + 20
+  local selected = false
+
+  for i,choiceStr in ipairs( question.choices ) do
+    selected = _.include( selectedAnswers, choiceStr )
+    local w = widget.newSwitch
+    {
+      left = 10,
+      top = top,
+      style = "checkbox",
+      initialSwitchState = selected
+    }
+    w.label = choiceStr
+    screen:insert( w )
+    table.insert( choiceWidgets, w )
+
+    local choiceText = display.newText( choiceStr, 0, 0, 200, 20, native.systemFont, 16 )
+    choiceText.x = left + 40 + choiceText.width/2
+    choiceText.y = top + 7 + choiceText.height/2
+    screen:insert( choiceText )
+    table.insert( choiceLabels, choiceText )
+
+    top = top + 40
+  end
 end
 
-local renderCheckBoxQuestion = function( question )
-  renderChoices( question, "checkbox" )
-end
-
-local renderSelectQuestion = function( question )
+local renderSelectQuestion = function( question, answer )
+  local selectedIndex = 2
+  for i,choiceStr in ipairs( question.choices ) do
+    if ( choiceStr == answer ) then
+      selectedIndex = i
+    end
+  end
   questionWidget = widget.newPickerWheel(
     {
       top = txtQuestion.y + 20,
@@ -100,7 +127,7 @@ local renderSelectQuestion = function( question )
         {
           align = "left",
           width = 300,
-          startIndex = 2,
+          startIndex = selectedIndex,
           labels = question.choices
         }
       }
@@ -109,8 +136,8 @@ local renderSelectQuestion = function( question )
   screen:insert( questionWidget )
 end
 
-local renderTextAreaQuestion = function( question )
-  renderTextWidget( question, "textbox" )
+local renderTextAreaQuestion = function( question, answer )
+  renderTextWidget( question, "textbox", answer )
 end
 
 local renderQuestionText = function( question )
@@ -121,20 +148,20 @@ local renderQuestionText = function( question )
 end
 
 local renderQuestion = function( question )
-  print("Rendering question #" .. _G.currentQuestionIndex)
+  local answer = _G.answers[_G.currentQuestionIndex]
   renderQuestionText( question )
   if question.questionType == "textfield" then
-    renderTextFieldQuestion( question )
-  elseif question.questionType == "radiobox" then
-    renderRadioBoxQuestion( question )
+    renderTextFieldQuestion( question, answer )
+  elseif question.questionType == "radio" then
+    renderRadioQuestion( question, answer )
   elseif question.questionType == "checkbox" then
-    renderCheckBoxQuestion( question )
+    renderCheckBoxQuestion( question, answer )
   elseif question.questionType == "select" then
-    renderSelectQuestion( question )
+    renderSelectQuestion( question, answer )
   elseif question.questionType == "textarea" then
-    renderTextAreaQuestion( question )
+    renderTextAreaQuestion( question, answer )
   else
-    renderTextBoxQuestion( question )
+    renderTextBoxQuestion( question, answer )
   end
 end
 
@@ -143,17 +170,25 @@ local saveAnswer = function()
   local question = getCurrentQuestion()
   if question.questionType == "select" then
     answer = questionWidget:getValues()[1].value
-  elseif question.questionType == "checkbox" then
-    answer = {}
-    for i,v in ipairs(choiceWidgets) do
-      if v.isOn then
-        table.insert( answer, v )
+  elseif question.questionType == "radio" then
+    for i,choiceWidget in ipairs(choiceWidgets) do
+      if choiceWidget.isOn then
+        answer = choiceWidget.label
       end
     end
-  elseif question.questionType == "textarea" then
+  elseif question.questionType == "checkbox" then
+    answer = {}
+    for i,choiceWidget in ipairs(choiceWidgets) do
+      if choiceWidget.isOn then
+        answer[#answer+1] = choiceWidget.label
+      end
+    end
+  elseif ( question.questionType == "textarea" ) or ( question.questionType == "textfield" ) then
     answer = questionWidget.text
   end
   _G.answers[ _G.currentQuestionIndex ] = answer
+  if (question.questionType ~= "checkbox") and (_G.answers[_G.currentQuestionIndex] ~= nil) then
+  end
 end
 
 local gotoNextQuestion = function()
@@ -211,7 +246,6 @@ local renderNextPreviousButtons = function()
 end
 
 local cleanupCurrentQuestion = function()
-  print("Cleaning up..")
   if txtQuestion ~= nil then
     txtQuestion:removeSelf()
   end
