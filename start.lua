@@ -14,6 +14,7 @@ local screen = nil
 local txtQuestion = nil
 local questionWidget = nil
 local choiceWidgets = {}
+local choiceLabels = {}
 
 ---------------------------------------------------------------------------------
 -- END OF VARIABLE DECLARATIONS
@@ -38,12 +39,36 @@ local renderRadioBoxQuestion = function( question )
 end
 
 local renderCheckBoxQuestion = function( question )
+  local left = 10
+  local top = txtQuestion.y + 20
+
+  for i,v in ipairs(question.choices) do
+    local w = widget.newSwitch
+    {
+      left = 10,
+      top = top,
+      id = "checkbox_" .. v,
+      style = "checkbox",
+      initialSwitchState = false
+    }
+    w.label = v
+    screen:insert( w )
+    table.insert( choiceWidgets, w )
+
+    local choiceText = display.newText( v, 0, 0, 200, 20, native.systemFont, 16 )
+    choiceText.x = left + 40 + choiceText.width/2
+    choiceText.y = top + 7 + choiceText.height/2
+    screen:insert( choiceText )
+    table.insert( choiceLabels, choiceText )
+
+    top = top + 40
+  end
 end
 
 local renderSelectQuestion = function( question )
   questionWidget = widget.newPickerWheel(
     {
-      top = txtQuestion.y + txtQuestion.height/2 + 40,
+      top = txtQuestion.y + 20,
       font = native.systemFont,
       columns = {
         {
@@ -55,6 +80,7 @@ local renderSelectQuestion = function( question )
       }
     }
   )
+  screen:insert( questionWidget )
 end
 
 local renderTextAreaQuestion = function( question )
@@ -90,8 +116,15 @@ local saveAnswer = function()
   local question = getCurrentQuestion()
   if question.questionType == "select" then
     answer = questionWidget:getValues()[1].value
+  elseif question.questionType == "checkbox" then
+    answer = {}
+    for i,v in ipairs(choiceWidgets) do
+      if v.isOn then
+        table.insert( answer, v )
+      end
+    end
+    print("Answer had " .. #answer .. " checked items")
   end
-  print("Answer is " .. answer)
   _G.answers[ _G.currentQuestionIndex ] = answer
 end
 
@@ -157,6 +190,16 @@ local cleanupCurrentQuestion = function()
   if questionWidget ~= nil then
     questionWidget:removeSelf()
   end
+
+  for i,v in ipairs(choiceWidgets) do
+    v:removeSelf()
+  end
+  choiceWidgets = {}
+
+  for i,v in ipairs(choiceLabels) do
+    v:removeSelf()
+  end
+  choiceLabels = {}
 end
 
 ---------------------------------------------------------------------------------
