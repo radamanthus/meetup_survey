@@ -186,6 +186,9 @@ local saveAnswer = function()
   elseif ( question.questionType == "textarea" ) or ( question.questionType == "textfield" ) then
     answer = questionWidget.text
   end
+  if answer == nil then
+    answer = ''
+  end
   _G.answers[ _G.currentQuestionIndex ] = answer
   if (question.questionType ~= "checkbox") and (_G.answers[_G.currentQuestionIndex] ~= nil) then
   end
@@ -197,6 +200,8 @@ local gotoNextQuestion = function()
   if _G.currentQuestionIndex < #questions then
     _G.currentQuestionIndex = _G.currentQuestionIndex + 1
     storyboard.gotoScene( "start" )
+  else
+    storyboard.gotoScene( "done" )
   end
 end
 

@@ -1,3 +1,4 @@
+local sqlite3 = require "sqlite3"
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
@@ -6,11 +7,26 @@ local scene = storyboard.newScene()
 ---------------------------------------------------------------------------------
 local screen = nil
 
+local initializeDatabase = function()
+  local path = system.pathForFile( "data.db", system.DocumentsDirectory )
+  _G.db = sqlite3.open( path )
+  local createTableSql = [[CREATE TABLE IF NOT EXISTS answers(software_dev_experience, mobile_dev_experience, dev_platforms, target_platforms, content_rating, duration_rating, suggestions, email);]]
+end
+
+local onSystemEvent = function( event )
+  if ( "applicationExit" == event.type ) then
+    _G.db:close()
+  end
+end
+
 function initializeGame()
   require 'init_buttons'
   require 'init_questions'
 
   math.randomseed( os.time() )
+
+  initializeDatabase()
+  Runtime:addEventListener( "system", onSystemEvent )
 
   _G.answers = {}
 end
