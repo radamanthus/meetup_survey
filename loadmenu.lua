@@ -11,6 +11,7 @@ local initializeDatabase = function()
   local path = system.pathForFile( "data.db", system.DocumentsDirectory )
   _G.db = sqlite3.open( path )
   local createTableSql = [[CREATE TABLE IF NOT EXISTS answers(software_dev_experience, mobile_dev_experience, dev_platforms, target_platforms, content_rating, duration_rating, suggestions, email);]]
+  _G.db:exec( createTableSql )
 end
 
 local onSystemEvent = function( event )

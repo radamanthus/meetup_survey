@@ -1,7 +1,6 @@
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local _ = require "scripts.lib.underscore"
 local ui = require "scripts.lib.ui"
 local radlib = require "scripts.lib.radlib"
 
@@ -9,24 +8,44 @@ local radlib = require "scripts.lib.radlib"
 -- BEGINNING OF VARIABLE DECLARATIONS
 ---------------------------------------------------------------------------------
 local screen = nil
+local menuTableView = nil
 
 ---------------------------------------------------------------------------------
 -- END OF VARIABLE DECLARATIONS
 ---------------------------------------------------------------------------------
-local sqlValue = function( val )
-  local sql = nil
-  if type(val) == "table" then
-    sql = _.join( val, ",")
-  else
-    sql = val
-  end
-  return "'" .. sql .. "'"
+local showSoftwareDevExperienceAnswers = function()
 end
 
-local saveCurrentAnswerToDatabase = function()
-  local sqlValues = _.map( _G.answers, sqlValue )
-  local insertSql = "INSERT INTO answers VALUES (" .. _.join( sqlValues, "," ) .. ");"
-  _G.db:exec( insertSql )
+local showMobileDevExperienceAnswers = function()
+end
+
+local showDevPlatformsAnswers = function()
+end
+
+local showTargetPlatformsAnswers = function()
+end
+
+local showContentRatingAnswers = function()
+end
+
+local showDurationRatingAnswers = function()
+end
+
+local showCommentsAnswers = function()
+end
+
+local showEmails = function()
+end
+
+local onMenuRowRender = function( event )
+end
+
+local onMenuRowTouch = function( event )
+  if "release" == phase then
+  end
+end
+
+local showResultsMenu = function()
 end
 
 ---------------------------------------------------------------------------------
@@ -34,35 +53,17 @@ end
 ---------------------------------------------------------------------------------
 function scene:createScene( event )
   screen = self.view
-
-  txtMessage = display.newText( "Thank you for your answers!", 0, 0, 300, 100, native.systemFont, 24 )
-  txtMessage.x = 10 + txtMessage.width/2
-  txtMessage.y = 10 + txtMessage.height/2
-  txtMessage:setTextColor( 255, 255, 255, 255 )
-  screen:insert( txtMessage )
-
-  local startButton = nil
-  local function onStartPressed ( event )
-    if event.phase == "ended" and startButton.isActive then
-      _G.answers = {}
-      _G.currentQuestionIndex = 1
-      storyboard.gotoScene( "start" )
-    end
-  end
-  startButton = ui.newButton(
-    radlib.table.merge(
-      _G.buttons['start'],
-      { onRelease = onStartPressed }
-    )
-  )
-  startButton.x = 160
-  startButton.y = 440
-  startButton.isActive = true
-  screen:insert(startButton)
+  menuTableView = widget.newTableView
+  {
+    width = 320,
+    height = 480,
+    onRowRender = onMenuRowRender,
+    onRowTouch = onMenuRowTouch
+  }
 end
 
 function scene:enterScene( event )
-  saveCurrentAnswerToDatabase()
+  showResultsMenu()
 end
 
 function scene:exitScene( event )
@@ -84,3 +85,4 @@ scene:addEventListener( "destroyScene", scene )
 ---------------------------------------------------------------------------------
 
 return scene
+
