@@ -30,56 +30,22 @@ function scene:createScene( event )
   startButton.isActive = true
   screen:insert(startButton)
 
-  local settingsButton = nil
-  local function onSettingsPressed( event )
-    if event.phase == "ended" and settingsButton.isActive then
-      storyboard.gotoScene( "settings" )
+  local resultsButton = nil
+  local function onResultsPressed( event )
+    if event.phase == "ended" and resultsButton.isActive then
+      storyboard.gotoScene( "results" )
     end
   end
-  settingsButton = ui.newButton(
+  resultsButton = ui.newButton(
     radlib.table.merge(
-      _G.buttons['settings'],
-      { onRelease = onSettingsPressed }
+      _G.buttons['results'],
+      { onRelease = onResultsPressed }
     )
   )
-  settingsButton.x = 160
-  settingsButton.y = 130
-  settingsButton.isActive = true
-  screen:insert(settingsButton)
-
-  local aboutButton = nil
-  local function onAboutPressed( event )
-    if event.phase == "ended" and aboutButton.isActive then
-      storyboard.gotoScene( "about" )
-    end
-  end
-  aboutButton = ui.newButton(
-    radlib.table.merge(
-      _G.buttons['about'],
-      { onRelease = onAboutPressed }
-    )
-  )
-  aboutButton.x = 160
-  aboutButton.y = 180
-  aboutButton.isActive = true
-  screen:insert(aboutButton)
-
-  local helpButton = nil
-  local function onHelpPressed( event )
-    if event.phase == "ended" and helpButton.isActive then
-      storyboard.gotoScene( "help" )
-    end
-  end
-  helpButton = ui.newButton(
-    radlib.table.merge(
-      _G.buttons['help'],
-      { onRelease = onHelpPressed }
-    )
-  )
-  helpButton.x = 160
-  helpButton.y = 230
-  helpButton.isActive = true
-  screen:insert(helpButton)
+  resultsButton.x = 160
+  resultsButton.y = 130
+  resultsButton.isActive = true
+  screen:insert(resultsButton)
 end
 
 function scene:enterScene( event )
