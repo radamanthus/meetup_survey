@@ -52,7 +52,7 @@ function scene:createScene( event )
   startButton = ui.newButton(
     radlib.table.merge(
       _G.buttons['start'],
-      { onRelease = onStartPressed }
+      { onRelease = onStartPressed, text = "Back to Survey" }
     )
   )
   startButton.x = 160
