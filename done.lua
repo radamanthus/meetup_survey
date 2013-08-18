@@ -46,13 +46,13 @@ function scene:createScene( event )
     if event.phase == "ended" and startButton.isActive then
       _G.answers = {}
       _G.currentQuestionIndex = 1
-      storyboard.gotoScene( "start" )
+      storyboard.gotoScene( "menu" )
     end
   end
   startButton = ui.newButton(
     radlib.table.merge(
       _G.buttons['start'],
-      { onRelease = onStartPressed, text = "Back to Survey" }
+      { onRelease = onStartPressed, text = "Back to Menu" }
     )
   )
   startButton.x = 160

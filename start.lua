@@ -37,7 +37,6 @@ local renderTextWidget = function( question, fieldType, answer )
   local left = 10
   local top = txtQuestion.y
   local width = 300
-  local height = 20
 
   if fieldType == "textbox" then
     questionWidget = native.newTextBox(
@@ -56,6 +55,10 @@ end
 
 local renderTextFieldQuestion = function( question, answer )
   renderTextWidget( question, "textfield", answer )
+end
+
+local renderTextAreaQuestion = function( question, answer )
+  renderTextWidget( question, "textbox", answer )
 end
 
 local renderRadioQuestion = function( question, answer )
@@ -84,7 +87,7 @@ local renderRadioQuestion = function( question, answer )
   end
 end
 
-local renderCheckBoxQuestion = function( question, selectedAnswers )
+local renderCheckboxQuestion = function( question, selectedAnswers )
   local left = 10
   local top = txtQuestion.y + 20
   local selected = false
@@ -136,10 +139,6 @@ local renderSelectQuestion = function( question, answer )
   screen:insert( questionWidget )
 end
 
-local renderTextAreaQuestion = function( question, answer )
-  renderTextWidget( question, "textbox", answer )
-end
-
 local renderQuestionText = function( question )
   txtQuestion = display.newText( question.text, 0, 0, 300, 100, native.systemFont, 16 )
   txtQuestion.x = 10 + txtQuestion.width/2
@@ -155,7 +154,7 @@ local renderQuestion = function( question )
   elseif question.questionType == "radio" then
     renderRadioQuestion( question, answer )
   elseif question.questionType == "checkbox" then
-    renderCheckBoxQuestion( question, answer )
+    renderCheckboxQuestion( question, answer )
   elseif question.questionType == "select" then
     renderSelectQuestion( question, answer )
   elseif question.questionType == "textarea" then
@@ -165,32 +164,53 @@ local renderQuestion = function( question )
   end
 end
 
-local saveAnswer = function()
-  local answer = nil
-  local question = getCurrentQuestion()
-  if question.questionType == "select" then
-    answer = questionWidget:getValues()[1].value
-  elseif question.questionType == "radio" then
-    for i,choiceWidget in ipairs(choiceWidgets) do
-      if choiceWidget.isOn then
-        answer = choiceWidget.label
-      end
+local saveSelectAnswer = function( question, questionIndex )
+  local answer = questionWidget:getValues()[1].value
+  if answer == nil then
+    answer = ''
+  else
+    _G.answers[ questionIndex ] = answer
+  end
+end
+
+local saveRadioAnswer = function( question, questionIndex )
+  for i,choiceWidget in ipairs(choiceWidgets) do
+    if choiceWidget.isOn then
+      answer = choiceWidget.label
     end
-  elseif question.questionType == "checkbox" then
-    answer = {}
-    for i,choiceWidget in ipairs(choiceWidgets) do
-      if choiceWidget.isOn then
-        answer[#answer+1] = choiceWidget.label
-      end
-    end
-  elseif ( question.questionType == "textarea" ) or ( question.questionType == "textfield" ) then
-    answer = questionWidget.text
   end
   if answer == nil then
     answer = ''
+  else
+    _G.answers[ questionIndex ] = answer
   end
-  _G.answers[ _G.currentQuestionIndex ] = answer
-  if (question.questionType ~= "checkbox") and (_G.answers[_G.currentQuestionIndex] ~= nil) then
+end
+
+local saveCheckboxAnswer = function( question, questionIndex )
+  local answer = {}
+  for i,choiceWidget in ipairs(choiceWidgets) do
+    if choiceWidget.isOn then
+      answer[#answer+1] = choiceWidget.label
+    end
+  end
+  _G.answers[ questionIndex ] = answer
+end
+
+local saveTextAnswer = function( question, questionIndex )
+  answer = questionWidget.text
+  _G.answers[ questionIndex ] = answer
+end
+
+local saveAnswer = function()
+  local question = getCurrentQuestion()
+  if question.questionType == "select" then
+    saveSelectAnswer( question, _G.currentQuestionIndex )
+  elseif question.questionType == "radio" then
+    saveRadioAnswer( question, _G.currentQuestionIndex )
+  elseif question.questionType == "checkbox" then
+    saveCheckboxAnswer( question, _G.currentQuestionIndex )
+  elseif ( question.questionType == "textarea" ) or ( question.questionType == "textfield" ) then
+    saveTextAnswer( question, _G.currentQuestionIndex )
   end
 end
 

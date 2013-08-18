@@ -14,7 +14,7 @@ local initializeDatabase = function()
   _G.db:exec( createTableSql )
 end
 
-local onSystemEvent = function( event )
+local onAppExit = function( event )
   if ( "applicationExit" == event.type ) then
     _G.db:close()
   end
@@ -27,7 +27,7 @@ function initializeGame()
   math.randomseed( os.time() )
 
   initializeDatabase()
-  Runtime:addEventListener( "system", onSystemEvent )
+  Runtime:addEventListener( "system", onAppExit )
 
   _G.answers = {}
 end
